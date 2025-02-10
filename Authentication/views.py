@@ -10,9 +10,6 @@ from .models import UserData
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 
-'''
-DJANGO WEB AUTHENTICATION
-'''
 @csrf_exempt
 def register(request):
     if request.method == "POST":
@@ -25,7 +22,8 @@ def register(request):
                 messages.error(request, "Username telah digunakan oleh pengguna lain.")
             else:
                 user = User.objects.create_user(username=username, password=password)
-                user.save()
+                userdata = UserData(user=user)
+                userdata.save()
                 messages.success(request, 'Akun Anda berhasil dibuat! Silakan login.')
                 return redirect('Authenticate:login')
         else:

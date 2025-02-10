@@ -1,9 +1,15 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import UserData
+from django.core.validators import MinLengthValidator
 
 class RegisterForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput())
+    password1 = forms.CharField(
+        label='Password', 
+        widget=forms.PasswordInput(),
+        max_length=128,
+        validators=[MinLengthValidator(4)]
+        )
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput())
 
     class Meta:
@@ -17,6 +23,15 @@ class RegisterForm(forms.ModelForm):
 
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Passwords do not match!")
+        return cleaned_data
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+
 
 class FirstDataForm(forms.ModelForm):
     class Meta:
